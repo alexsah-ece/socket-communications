@@ -101,24 +101,24 @@ public class userApplication {
 
         // Packet spec
         byte[] txbuffer = packetInfo.getBytes();
-        DatagramPacket packetClientToServer = 
+        DatagramPacket reqPacket = 
             new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
 		byte[] rxbuffer = new byte[2048];
-        DatagramPacket packetServerToClient = new DatagramPacket(rxbuffer, rxbuffer.length);
+        DatagramPacket resPacket = new DatagramPacket(rxbuffer, rxbuffer.length);
         // Handle sockets
-        DatagramSocket socketClientReceive = new DatagramSocket(CLIENT_PORT);
-        DatagramSocket socketClientSend = new DatagramSocket();
+        DatagramSocket resSocket = new DatagramSocket(CLIENT_PORT);
+        DatagramSocket reqSocket = new DatagramSocket();
 
         long timeStart, start, end, delta, dt = 0; int packetCount = 0;	
 
         timeStart = System.currentTimeMillis();
 		while (dt < DURATION){
             start = System.currentTimeMillis();
-			socketClientSend.send(packetClientToServer);
-            socketClientReceive.setSoTimeout(3200);
+			reqSocket.send(reqPacket);
+            resSocket.setSoTimeout(3200);
 			while (true) {
 				try{
-					socketClientReceive.receive(packetServerToClient);
+					resSocket.receive(resPacket);
 					end = System.currentTimeMillis();
                     delta = end - start; dt = end - timeStart;
                     responseTimes.add(delta);
@@ -138,12 +138,12 @@ public class userApplication {
         for (int i = 0; i < 8; i++) {
             packetInfo = String.format("%sT00\r", code);
             txbuffer = packetInfo.getBytes();
-            packetClientToServer = 
+            reqPacket = 
                 new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
             try {
-                socketClientSend.send(packetClientToServer);
-                socketClientReceive.setSoTimeout(3200);
-                socketClientReceive.receive(packetServerToClient);
+                reqSocket.send(reqPacket);
+                resSocket.setSoTimeout(3200);
+                resSocket.receive(resPacket);
                 String rcv = new String(rxbuffer);
                 temperature.write(rcv);
                 temperature.newLine();
@@ -176,8 +176,8 @@ public class userApplication {
 		}
 
         // close connections
-        socketClientReceive.close();
-        socketClientSend.close();
+        resSocket.close();
+        reqSocket.close();
         // handle file streams
         log.flush();
         window.flush();
@@ -197,20 +197,20 @@ public class userApplication {
 
         // Packet spec
         byte[] txbuffer = packetInfo.getBytes();
-        DatagramPacket packetClientToServer = 
+        DatagramPacket reqPacket = 
             new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
 		byte[] rxbuffer = new byte[2048];
-        DatagramPacket packetServerToClient = new DatagramPacket(rxbuffer, rxbuffer.length);
+        DatagramPacket resPacket = new DatagramPacket(rxbuffer, rxbuffer.length);
         // Handle sockets
-        DatagramSocket socketClientReceive = new DatagramSocket(CLIENT_PORT);
-        DatagramSocket socketClientSend = new DatagramSocket();
+        DatagramSocket resSocket = new DatagramSocket(CLIENT_PORT);
+        DatagramSocket reqSocket = new DatagramSocket();
 
-        socketClientSend.send(packetClientToServer);
-        socketClientReceive.setSoTimeout(3200);
+        reqSocket.send(reqPacket);
+        resSocket.setSoTimeout(3200);
 		
 		for(;;){
 			try{
-                socketClientReceive.receive(packetServerToClient);
+                resSocket.receive(resPacket);
 				image.write(rxbuffer, 0, 128);
 			}catch (IOException ex) {
 				System.out.println(ex);
@@ -218,8 +218,8 @@ public class userApplication {
 			}
         }
         // close connections
-        socketClientReceive.close();
-        socketClientSend.close();
+        resSocket.close();
+        reqSocket.close();
         // handle file stream
         image.flush();
 		image.close();
@@ -244,25 +244,25 @@ public class userApplication {
 
         // Packet spec
         byte[] txbuffer = packetInfo.getBytes();
-        DatagramPacket packetClientToServer = 
+        DatagramPacket reqPacket = 
             new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
         byte[] rxbuffer = new byte[128];
-        DatagramPacket packetServerToClient = new DatagramPacket(rxbuffer, rxbuffer.length);
+        DatagramPacket resPacket = new DatagramPacket(rxbuffer, rxbuffer.length);
         // Handle sockets
-        DatagramSocket socketClientReceive = new DatagramSocket(CLIENT_PORT);
-        DatagramSocket socketClientSend = new DatagramSocket();
+        DatagramSocket resSocket = new DatagramSocket(CLIENT_PORT);
+        DatagramSocket reqSocket = new DatagramSocket();
 
         byte[] samples = new byte[128 * 2 * packetCount];
         
 
-        socketClientSend.send(packetClientToServer);
-        socketClientReceive.setSoTimeout(1000);
+        reqSocket.send(reqPacket);
+        resSocket.setSoTimeout(1000);
         // extract all the samples
         for(int i = 0; i < packetCount; i++){
             try {
                 if (i % 100 == 0) System.out.println(i);
 				int sub1, sub2;
-                socketClientReceive.receive(packetServerToClient);
+                resSocket.receive(resPacket);
                 for (int j = 0; j < 128; j++){
                     int a = rxbuffer[j];
                     int index = i*256 + 2*j;
@@ -291,8 +291,8 @@ public class userApplication {
         dl.close();
         
         // close connections
-        socketClientReceive.close();
-		socketClientSend.close();
+        resSocket.close();
+		reqSocket.close();
 		// handle file streams
 		subs.flush();
 		sampls.flush();
