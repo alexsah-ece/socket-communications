@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class userApplication {
                         soundAQDPCM(AUDIO_CODE + "AQF");
                         break;
                     case 6:
-                        ithakicopter(COPTER_CODE);
+                        ithakicopterTCP(COPTER_CODE);
                     case 7:
                         return;
                     default:
@@ -440,5 +441,25 @@ public class userApplication {
 		log.flush();
 		log.close();
 	};
+
+	public static void ithakicopterTCP(String code) throws IOException{
+		Socket s = new Socket(SERVER_IP, 38048);
+		InputStream in = s.getInputStream();
+		OutputStream out = s.getOutputStream();
+
+		String packet = "AUTO FLIGHTLEVEL=100 LMOTOR=154 RMOTOR=002 PILOT \r\n";
+		out.write(packet.getBytes());
+		String res = "";
+		int x = in.read();
+		while (x != -1){
+			res += (char) x;
+			x = in.read();
+		}
+		System.out.println(res);
+
+		in.close();
+		out.close();
+		s.close();
+   };
 	
 }
