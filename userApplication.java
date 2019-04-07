@@ -19,11 +19,11 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48022;
-    static final int SERVER_PORT = 38022;
-    static final String ECHO_CODE = "E1753";
-    static final String IMAGE_CODE = "M3602";
-    static final String AUDIO_CODE = "";
+    static final int CLIENT_PORT = 48023;
+    static final int SERVER_PORT = 38023;
+    static final String ECHO_CODE = "E7905";
+    static final String IMAGE_CODE = "M8081";
+    static final String AUDIO_CODE = "A3368";
     static final String COPTER_CODE = "";
     static final String VEHICLE_CODE = "";
     static final long DURATION = 10 * 1 * 1000;
@@ -59,7 +59,8 @@ public class userApplication {
                         image(IMAGE_CODE + "CAM=PTZ");
                         break;
                     case 4:
-                        soundDPCM();
+						soundDPCM(AUDIO_CODE + 'F');
+						soundDPCM(AUDIO_CODE + 'T');
                         break;
                     case 5:
                         soundAQDPCM();
@@ -223,7 +224,82 @@ public class userApplication {
         image.flush();
 		image.close();
     };
-    public static void soundDPCM() throws IOException, LineUnavailableException {};
+
+    public static void soundDPCM(String code) throws IOException, LineUnavailableException {
+
+        int packetCount = 500, b = 2;
+        String packetInfo = code + packetCount;
+		System.out.println(packetInfo);
+		
+        // File creation
+        String filename = "../log/soundDPCM_subs_" + code + ".csv";
+        BufferedWriter subs = new BufferedWriter(new FileWriter(filename));
+        subs.write("sub, value");
+		subs.newLine();
+		
+		filename = "../log/soundDPCM_samples_" + code + ".csv";
+        BufferedWriter sampls = new BufferedWriter(new FileWriter(filename));
+        sampls.write("sample, value");
+        sampls.newLine();
+
+        // Packet spec
+        byte[] txbuffer = packetInfo.getBytes();
+        DatagramPacket packetClientToServer = 
+            new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
+        byte[] rxbuffer = new byte[128];
+        DatagramPacket packetServerToClient = new DatagramPacket(rxbuffer, rxbuffer.length);
+        // Handle sockets
+        DatagramSocket socketClientReceive = new DatagramSocket(CLIENT_PORT);
+        DatagramSocket socketClientSend = new DatagramSocket();
+
+        byte[] samples = new byte[128 * 2 * packetCount];
+        
+
+        socketClientSend.send(packetClientToServer);
+        socketClientReceive.setSoTimeout(1000);
+        // extract all the samples
+        for(int i = 0; i < packetCount; i++){
+            try {
+                if (i % 100 == 0) System.out.println(i);
+				int sub1, sub2;
+                socketClientReceive.receive(packetServerToClient);
+                for (int j = 0; j < 128; j++){
+                    int a = rxbuffer[j];
+                    int index = i*256 + 2*j;
+                    sub1 = ((a >> 4) & 15) - 8;
+                    sub2 = (a & 15) - 8;
+                    samples[index] = (index == 0) ? (byte) 0 : (byte) (b * sub1 + samples[index + 1]); 
+					samples[index + 1] = (byte) (b * (sub2) + samples[index]);
+
+					subs.write(String.format("%d,%d\n", index, sub1)); 
+					subs.write(String.format("%d,%d\n", index + 1, sub2)); 
+					sampls.write(String.format("%d,%d\n", index, samples[index])); 
+					sampls.write(String.format("%d,%d\n", index + 1, samples[index + 1])); 
+				}
+            } catch (Exception x){
+                System.out.println(x);
+            }
+        }
+
+        AudioFormat FAudio = new AudioFormat(8000, 8, 1, true, false);
+        SourceDataLine dl = AudioSystem.getSourceDataLine(FAudio);
+        System.out.println("Playing sound");
+        dl.open(FAudio, 32000);
+		dl.start();
+		dl.write(samples, 0, 256 * packetCount);
+		dl.stop();
+        dl.close();
+        
+        // close connections
+        socketClientReceive.close();
+		socketClientSend.close();
+		// handle file streams
+		subs.flush();
+		sampls.flush();
+		subs.close();
+		sampls.close();
+	};
+	
     public static void soundAQDPCM() throws IOException, LineUnavailableException {};
     public static void ithakicopter() throws IOException{};
 	
