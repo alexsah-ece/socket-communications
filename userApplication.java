@@ -19,14 +19,14 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48005;
-    static final int SERVER_PORT = 38005;
-    static final String ECHO_CODE = "E6819";
-    static final String IMAGE_CODE = "M2037";
+    static final int CLIENT_PORT = 48022;
+    static final int SERVER_PORT = 38022;
+    static final String ECHO_CODE = "E1753";
+    static final String IMAGE_CODE = "M3602";
     static final String AUDIO_CODE = "";
     static final String COPTER_CODE = "";
     static final String VEHICLE_CODE = "";
-    static final long DURATION = 20 * 1 * 1000;
+    static final long DURATION = 10 * 1 * 1000;
 
 
 	public static void main(String[] args) throws IOException {
@@ -94,6 +94,9 @@ public class userApplication {
         window.write("Window, Duration, Packets, Throughput");
         window.newLine();
 
+        filename = "../log/echo_" + code + "_temp.csv";
+        BufferedWriter temperature = new BufferedWriter(new FileWriter(filename));
+
 
         // Packet spec
         byte[] txbuffer = packetInfo.getBytes();
@@ -130,6 +133,24 @@ public class userApplication {
 				}
 			}
         }
+        // temperature readings
+        for (int i = 0; i < 8; i++) {
+            packetInfo = String.format("%sT00\r", code);
+            txbuffer = packetInfo.getBytes();
+            packetClientToServer = 
+                new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
+            try {
+                socketClientSend.send(packetClientToServer);
+                socketClientReceive.setSoTimeout(3200);
+                socketClientReceive.receive(packetServerToClient);
+                String rcv = new String(rxbuffer);
+                temperature.write(rcv);
+                temperature.newLine();
+                System.out.println(rcv);
+            } catch (Exception x) {
+                System.out.println(x);
+            }
+        }
         // Throughput calculation for every 8 sec window
         int windowCount = 0; packetCount = 0;
         long sumInt = 0;
@@ -159,8 +180,10 @@ public class userApplication {
         // handle file streams
         log.flush();
         window.flush();
+        temperature.flush();
         log.close();
-        window.close();;
+        window.close();
+        temperature.close();
 	
     }
     
