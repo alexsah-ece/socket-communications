@@ -21,7 +21,7 @@ public class userApplication {
     static final String SERVER_IP = "155.207.18.208";
     static final int CLIENT_PORT = 48002;
     static final int SERVER_PORT = 38002;
-    static final String ECHO_CODE = "E4243/r";
+    static final String ECHO_CODE = "E4243";
     static final String IMAGE_CODE = "";
     static final String AUDIO_CODE = "";
     static final String COPTER_CODE = "";
@@ -52,7 +52,7 @@ public class userApplication {
                         echo(ECHO_CODE);
                         break;
                     case 2:
-                        echo("E0000\r");
+                        echo("E0000");
                         break;
                     case 3:
                         image();
@@ -79,16 +79,16 @@ public class userApplication {
 
 	public static void echo(String code) throws IOException{
         
-        String packetInfo = code;
+        String packetInfo = code + "\r";
         ArrayList<Long> responseTimes = new ArrayList<Long>();
         
         // File creation
-        String filename = "../log/echo_" + code.substring(0, 5) + ".csv";
+        String filename = "../log/echo_" + code + ".csv";
         BufferedWriter log = new BufferedWriter(new FileWriter(filename));
         log.write("Packet, Response Time, Time elapsed");
         log.newLine();
 
-        filename = "../log/echo_" + code.substring(0, 5) + "_window.csv";
+        filename = "../log/echo_" + code + "_window.csv";
         BufferedWriter window = new BufferedWriter(new FileWriter(filename));
         window.write("Window, Duration, Packets, Throughput");
         window.newLine();
