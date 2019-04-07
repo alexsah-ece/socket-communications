@@ -19,11 +19,11 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48023;
-    static final int SERVER_PORT = 38023;
-    static final String ECHO_CODE = "E7905";
-    static final String IMAGE_CODE = "M8081";
-    static final String AUDIO_CODE = "A3368";
+    static final int CLIENT_PORT = 48028;
+    static final int SERVER_PORT = 38028;
+    static final String ECHO_CODE = "E8058";
+    static final String IMAGE_CODE = "M9969";
+    static final String AUDIO_CODE = "A1205";
     static final String COPTER_CODE = "";
     static final String VEHICLE_CODE = "";
     static final long DURATION = 10 * 1 * 1000;
@@ -85,17 +85,17 @@ public class userApplication {
         ArrayList<Long> responseTimes = new ArrayList<Long>();
         
         // File creation
-        String filename = "../log/echo_" + code + ".csv";
+        String filename = "../log/echo/" + code + ".csv";
         BufferedWriter log = new BufferedWriter(new FileWriter(filename));
         log.write("Packet, Response Time, Time elapsed");
         log.newLine();
 
-        filename = "../log/echo_" + code + "_window.csv";
+        filename = "../log/echo/" + code + "_window.csv";
         BufferedWriter window = new BufferedWriter(new FileWriter(filename));
         window.write("Window, Duration, Packets, Throughput");
         window.newLine();
 
-        filename = "../log/echo_" + code + "_temp.csv";
+        filename = "../log/echo/" + code + "_temp.csv";
         BufferedWriter temperature = new BufferedWriter(new FileWriter(filename));
 
 
@@ -232,12 +232,12 @@ public class userApplication {
 		System.out.println(packetInfo);
 		
         // File creation
-        String filename = "../log/soundDPCM_subs_" + code + ".csv";
+        String filename = "../log/DPCM/" + code + "_subs.csv";
         BufferedWriter subs = new BufferedWriter(new FileWriter(filename));
         subs.write("sub, value");
 		subs.newLine();
 		
-		filename = "../log/soundDPCM_freqs_" + code + ".csv";
+		filename = "../log/DPCM/" + code + "_freqs.csv";
         BufferedWriter sampls = new BufferedWriter(new FileWriter(filename));
         sampls.write("sample, value");
         sampls.newLine();
@@ -306,22 +306,22 @@ public class userApplication {
 		System.out.println(packetInfo);
 		
         // File creation
-        String filename = "../log/soundAQDPCM_subs_" + code + ".csv";
+        String filename = "../log/AQDPCM/" + code + "_subs.csv";
         BufferedWriter subtr = new BufferedWriter(new FileWriter(filename));
         subtr.write("sub, value");
 		subtr.newLine();
 		
-		filename = "../log/soundAQDPCM_freqs_" + code + ".csv";
+		filename = "../log/AQDPCM/" + code + "_freqs.csv";
         BufferedWriter sampls = new BufferedWriter(new FileWriter(filename));
         sampls.write("sample, value");
 		sampls.newLine();
 		
-		filename = "../log/soundAQDPCM_means_" + code + ".csv";
+		filename = "../log/AQDPCM/" + code + "_means.csv";
         BufferedWriter means = new BufferedWriter(new FileWriter(filename));
         means.write("mean, value");
 		means.newLine();
 		
-		filename = "../log/soundAQDPCM_betas_" + code + ".csv";
+		filename = "../log/AQDPCM/" + code + "_betas.csv";
         BufferedWriter betas = new BufferedWriter(new FileWriter(filename));
         betas.write("beta, value");
         betas.newLine();
