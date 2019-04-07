@@ -20,13 +20,13 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48028;
-    static final int SERVER_PORT = 38028;
+    static final int CLIENT_PORT = 48024;
+    static final int SERVER_PORT = 38024;
     static final String ECHO_CODE = "E8058";
     static final String IMAGE_CODE = "M9969";
     static final String AUDIO_CODE = "A1205";
     static final String COPTER_CODE = "Q9485";
-    static final String VEHICLE_CODE = "";
+    static final String VEHICLE_CODE = "V8626";
     static final long DURATION = 10 * 1 * 1000;
 
 
@@ -40,7 +40,8 @@ public class userApplication {
             // Print menu
             String[] menu = {"1.Echo Request Code", "2.Echo Request Code No Delay",
                 "3.Image Request Code", "4.Sound Request Code(DPCM)",
-                "5.Sound Request Code(AQDPCM)", "6.Ithakicopter TCP", "7.Exit"};
+				"5.Sound Request Code(AQDPCM)", "6.Ithakicopter TCP", "7.Vehicle",
+				"8.Exit"};
             for (String x: menu) System.out.println(x);
 
             // Get user input
@@ -67,8 +68,11 @@ public class userApplication {
                         soundAQDPCM(AUDIO_CODE + "AQF");
                         break;
                     case 6:
-                        ithakicopterTCP(COPTER_CODE);
-                    case 7:
+						ithakicopterTCP(COPTER_CODE);
+						break;
+					case 7:
+						vehicle(VEHICLE_CODE);
+                    case 8:
                         return;
                     default:
                     System.out.println("Try again");
@@ -461,5 +465,36 @@ public class userApplication {
 		out.close();
 		s.close();
    };
+
+	public static void vehicle(String code) throws IOException{
+        String packetInfo = code + "OBD=01 0F";
+
+        // Packet spec
+        byte[] txbuffer = packetInfo.getBytes();
+        DatagramPacket reqPacket = 
+            new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
+		byte[] rxbuffer = new byte[2048];
+        DatagramPacket resPacket = new DatagramPacket(rxbuffer, rxbuffer.length);
+        // Handle sockets
+        DatagramSocket resSocket = new DatagramSocket(CLIENT_PORT);
+        DatagramSocket reqSocket = new DatagramSocket();
+
+        reqSocket.send(reqPacket);
+        resSocket.setSoTimeout(3200);
+		
+		for(;;){
+			try{
+                resSocket.receive(resPacket);
+				System.out.println(new String(rxbuffer));
+				reqSocket.send(reqPacket);
+			}catch (IOException ex) {
+				System.out.println(ex);
+				break;
+			}
+        }
+        // close connections
+        resSocket.close();
+        reqSocket.close();
+	};
 	
 }
