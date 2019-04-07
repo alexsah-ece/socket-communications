@@ -19,10 +19,10 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48002;
-    static final int SERVER_PORT = 38002;
-    static final String ECHO_CODE = "E4243";
-    static final String IMAGE_CODE = "";
+    static final int CLIENT_PORT = 48005;
+    static final int SERVER_PORT = 38005;
+    static final String ECHO_CODE = "E6819";
+    static final String IMAGE_CODE = "M2037";
     static final String AUDIO_CODE = "";
     static final String COPTER_CODE = "";
     static final String VEHICLE_CODE = "";
@@ -55,7 +55,8 @@ public class userApplication {
                         echo("E0000");
                         break;
                     case 3:
-                        image();
+                        image(IMAGE_CODE);
+                        image(IMAGE_CODE + "CAM=PTZ");
                         break;
                     case 4:
                         soundDPCM();
@@ -163,7 +164,42 @@ public class userApplication {
 	
     }
     
-    public static void image() throws IOException{};
+    public static void image(String code) throws IOException{
+        String packetInfo = code + "\r";
+        
+        // File creation
+        String filename = "../img/" + code + ".jpg";
+        OutputStream image = new FileOutputStream(filename);
+
+        // Packet spec
+        byte[] txbuffer = packetInfo.getBytes();
+        DatagramPacket packetClientToServer = 
+            new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
+		byte[] rxbuffer = new byte[2048];
+        DatagramPacket packetServerToClient = new DatagramPacket(rxbuffer, rxbuffer.length);
+        // Handle sockets
+        DatagramSocket socketClientReceive = new DatagramSocket(CLIENT_PORT);
+        DatagramSocket socketClientSend = new DatagramSocket();
+
+        socketClientSend.send(packetClientToServer);
+        socketClientReceive.setSoTimeout(3200);
+		
+		for(;;){
+			try{
+                socketClientReceive.receive(packetServerToClient);
+				image.write(rxbuffer, 0, 128);
+			}catch (IOException ex) {
+				System.out.println(ex);
+				break;
+			}
+        }
+        // close connections
+        socketClientReceive.close();
+        socketClientSend.close();
+        // handle file stream
+        image.flush();
+		image.close();
+    };
     public static void soundDPCM() throws IOException, LineUnavailableException {};
     public static void soundAQDPCM() throws IOException, LineUnavailableException {};
     public static void ithakicopter() throws IOException{};
