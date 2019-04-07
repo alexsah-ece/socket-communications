@@ -24,7 +24,7 @@ public class userApplication {
     static final String ECHO_CODE = "E8058";
     static final String IMAGE_CODE = "M9969";
     static final String AUDIO_CODE = "A1205";
-    static final String COPTER_CODE = "";
+    static final String COPTER_CODE = "Q9485";
     static final String VEHICLE_CODE = "";
     static final long DURATION = 10 * 1 * 1000;
 
@@ -66,7 +66,7 @@ public class userApplication {
                         soundAQDPCM(AUDIO_CODE + "AQF");
                         break;
                     case 6:
-                        ithakicopter();
+                        ithakicopter(COPTER_CODE);
                     case 7:
                         return;
                     default:
@@ -409,6 +409,36 @@ public class userApplication {
 		betas.close();
 	};
 
-    public static void ithakicopter() throws IOException{};
+    public static void ithakicopter(String code) throws IOException{
+		 // File creation
+        String filename = "../log/copter/" + code + ".csv";
+        BufferedWriter log = new BufferedWriter(new FileWriter(filename));
+
+        // Packet spec
+        byte[] rxbuffer = new byte[5000];
+        DatagramPacket resPacket = new DatagramPacket(rxbuffer, rxbuffer.length);
+        // Handle sockets
+        DatagramSocket resSocket = new DatagramSocket(48038);
+		DatagramSocket reqSocket = new DatagramSocket();
+
+		for (int i = 0; i < 10; i++){
+			try {
+				resSocket.receive(resPacket);
+				String message = new String(rxbuffer, 0, resPacket.getLength());
+				log.write(message);
+				log.newLine();
+				System.out.println(new String(rxbuffer));
+			} catch (Exception x) {
+				System.out.println(x);
+			}
+
+		}
+		// close connections
+		resSocket.close();
+		reqSocket.close();
+		//handle file streams
+		log.flush();
+		log.close();
+	};
 	
 }
