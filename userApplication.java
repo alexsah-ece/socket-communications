@@ -20,13 +20,13 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48024;
-    static final int SERVER_PORT = 38024;
+    static final int CLIENT_PORT = 48013;
+    static final int SERVER_PORT = 38013;
     static final String ECHO_CODE = "E8058";
     static final String IMAGE_CODE = "M9969";
     static final String AUDIO_CODE = "A1205";
-    static final String COPTER_CODE = "Q9485";
-    static final String VEHICLE_CODE = "V8626";
+    static final String COPTER_CODE = "Q3759";
+    static final String VEHICLE_CODE = "V8721";
     static final long DURATION = 10 * 1 * 1000;
 
 
@@ -467,34 +467,72 @@ public class userApplication {
    };
 
 	public static void vehicle(String code) throws IOException{
-        String packetInfo = code + "OBD=01 0F";
+        String filename = "../log/vehicle/" + code + ".csv";
+        BufferedWriter log = new BufferedWriter(new FileWriter(filename));
+        log.write("Run Time,Air temp,Throttle pos,Engine RPM,Speed,Coolant temp");
+        log.newLine();
 
+        code = code + "OBD=01 ";
+        String[] packetInfo = {code + "1F", code + "0F", code + "11", code + "0C", code + "0D", code + "05"};
         // Packet spec
-        byte[] txbuffer = packetInfo.getBytes();
-        DatagramPacket reqPacket = 
-            new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
 		byte[] rxbuffer = new byte[2048];
         DatagramPacket resPacket = new DatagramPacket(rxbuffer, rxbuffer.length);
         // Handle sockets
         DatagramSocket resSocket = new DatagramSocket(CLIENT_PORT);
         DatagramSocket reqSocket = new DatagramSocket();
 
-        reqSocket.send(reqPacket);
-        resSocket.setSoTimeout(3200);
-		
-		for(;;){
-			try{
-                resSocket.receive(resPacket);
-				System.out.println(new String(rxbuffer));
-				reqSocket.send(reqPacket);
-			}catch (IOException ex) {
-				System.out.println(ex);
-				break;
-			}
-        }
+        long timeStart, end, dt = 0;	
+        timeStart = System.currentTimeMillis();
+        System.out.println("Run Time\tAir temp\tThrottle pos\tEngine RPM\tSpeed\tCoolant temp");
+		while (dt < DURATION){
+            for (int i = 0; i < 6; i ++){
+                byte[] txbuffer = packetInfo[i].getBytes();
+                DatagramPacket reqPacket = 
+                    new DatagramPacket(txbuffer, txbuffer.length, InetAddress.getByName(SERVER_IP), SERVER_PORT);
+                try {
+                    reqSocket.send(reqPacket);
+                    resSocket.setSoTimeout(3200);
+                    resSocket.receive(resPacket);
+                    double result = formula(new String(rxbuffer), i);
+                    System.out.printf("%.02f\t\t", result);
+                    log.write(String.format("%.03f,", result));
+                } catch (Exception x){
+                    System.out.println(x);
+                    return;
+				}
+            }
+            log.newLine();
+            System.out.println(); 
+            end = System.currentTimeMillis();
+            dt = end - timeStart;
+        }		
         // close connections
         resSocket.close();
         reqSocket.close();
+        // handle file strem
+        log.flush();
+        log.close();
 	};
-	
+    
+    private static float formula(String rx, int index){
+        String[] p = rx.split(" ");
+        float XX = Integer.parseInt(p[2], 16);
+        float YY = Integer.parseInt(p[3].substring(0, 2), 16); // \r causes problems on the end of p[3]
+
+        switch(index){
+            case 0:
+                return 256 * XX + YY;
+            case 1:
+                return XX - 40;
+            case 2:
+                return XX * 100 / 255;
+            case 3:
+                return ((XX * 256) + YY) / 4;
+            case 4:
+                return XX;
+            case 5:
+                return XX - 40;
+        }
+        return 1;
+    }
 }
