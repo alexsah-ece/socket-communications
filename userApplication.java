@@ -92,12 +92,12 @@ public class userApplication {
         // File creation
         String filename = "../log/echo/" + code + ".csv";
         BufferedWriter log = new BufferedWriter(new FileWriter(filename));
-        log.write("Packet, Response Time, Time elapsed");
+        log.write("Packet,Response Time,Time elapsed");
         log.newLine();
 
         filename = "../log/echo/" + code + "_window.csv";
         BufferedWriter window = new BufferedWriter(new FileWriter(filename));
-        window.write("Window, Duration, Packets, Throughput");
+        window.write("Window,Duration,Packets,Throughput");
         window.newLine();
 
         filename = "../log/echo/" + code + "_temp.csv";
@@ -239,12 +239,12 @@ public class userApplication {
         // File creation
         String filename = "../log/DPCM/" + code + "_subs.csv";
         BufferedWriter subs = new BufferedWriter(new FileWriter(filename));
-        subs.write("sub, value");
+        subs.write("sub,value");
 		subs.newLine();
 		
 		filename = "../log/DPCM/" + code + "_freqs.csv";
         BufferedWriter sampls = new BufferedWriter(new FileWriter(filename));
-        sampls.write("sample, value");
+        sampls.write("sample,value");
         sampls.newLine();
 
         // Packet spec
@@ -313,22 +313,22 @@ public class userApplication {
         // File creation
         String filename = "../log/AQDPCM/" + code + "_subs.csv";
         BufferedWriter subtr = new BufferedWriter(new FileWriter(filename));
-        subtr.write("sub, value");
+        subtr.write("sub,value");
 		subtr.newLine();
 		
 		filename = "../log/AQDPCM/" + code + "_freqs.csv";
         BufferedWriter sampls = new BufferedWriter(new FileWriter(filename));
-        sampls.write("sample, value");
+        sampls.write("sample,value");
 		sampls.newLine();
 		
 		filename = "../log/AQDPCM/" + code + "_means.csv";
         BufferedWriter means = new BufferedWriter(new FileWriter(filename));
-        means.write("mean, value");
+        means.write("mean,value");
 		means.newLine();
 		
 		filename = "../log/AQDPCM/" + code + "_betas.csv";
         BufferedWriter betas = new BufferedWriter(new FileWriter(filename));
-        betas.write("beta, value");
+        betas.write("beta,value");
         betas.newLine();
 
         // Packet spec
