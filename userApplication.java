@@ -20,14 +20,14 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48013;
-    static final int SERVER_PORT = 38013;
-    static final String ECHO_CODE = "E8058";
-    static final String IMAGE_CODE = "M9969";
-    static final String AUDIO_CODE = "A1205";
-    static final String COPTER_CODE = "Q3759";
-    static final String VEHICLE_CODE = "V8721";
-    static final long DURATION = 10 * 1 * 1000;
+    static final int CLIENT_PORT = 48030;
+    static final int SERVER_PORT = 38030;
+    static final String ECHO_CODE = "E4449";
+    static final String IMAGE_CODE = "M5773";
+    static final String AUDIO_CODE = "A8633";
+    static final String COPTER_CODE = "Q7137";
+    static final String VEHICLE_CODE = "V6386";
+    static final long DURATION = 60 * 4 * 1000;
 
 
 	public static void main(String[] args) throws IOException {
@@ -38,10 +38,10 @@ public class userApplication {
 	public static void options(){
 		while (true) {
             // Print menu
-            String[] menu = {"1.Echo Request Code", "2.Echo Request Code No Delay",
-                "3.Image Request Code", "4.Sound Request Code(DPCM)",
-				"5.Sound Request Code(AQDPCM)", "6.Ithakicopter TCP", "7.Vehicle",
-				"8.Exit"};
+            String[] menu = {"1.Echo Request Code", "2.Image Request Code", 
+                "3.Sound Request Code(DPCM)", "4.Sound Request Code(AQDPCM)", 
+                "5.Ithakicopter UDP","6.Ithakicopter TCP", 
+                "7.Vehicle", "8.Exit"};
             for (String x: menu) System.out.println(x);
 
             // Get user input
@@ -52,20 +52,21 @@ public class userApplication {
                 switch (choice){
                     case 1:
                         echo(ECHO_CODE);
-                        break;
-                    case 2:
                         echo("E0000");
                         break;
-                    case 3:
+                    case 2:
                         image(IMAGE_CODE);
                         image(IMAGE_CODE + "CAM=PTZ");
                         break;
-                    case 4:
+                    case 3:
 						soundDPCM(AUDIO_CODE + 'F');
 						soundDPCM(AUDIO_CODE + 'T');
                         break;
-                    case 5:
+                    case 4:
                         soundAQDPCM(AUDIO_CODE + "AQF");
+                        break;
+                    case 5:
+                        ithakicopter(COPTER_CODE);
                         break;
                     case 6:
 						ithakicopterTCP(COPTER_CODE);
@@ -232,7 +233,7 @@ public class userApplication {
 
     public static void soundDPCM(String code) throws IOException, LineUnavailableException {
 
-        int packetCount = 500, b = 2;
+        int packetCount = 997, b = 2;
         String packetInfo = code + packetCount;
 		System.out.println(packetInfo);
 		
@@ -306,7 +307,7 @@ public class userApplication {
 	};
 	
     public static void soundAQDPCM(String code) throws IOException, LineUnavailableException {
-        int packetCount = 500, b = 2;
+        int packetCount = 997;
         String packetInfo = code + packetCount;
 		System.out.println(packetInfo);
 		
@@ -418,6 +419,8 @@ public class userApplication {
 		 // File creation
         String filename = "../log/copter/" + code + ".csv";
         BufferedWriter log = new BufferedWriter(new FileWriter(filename));
+        log.write("lmotor,rmotor,alt,temp,press");
+        log.newLine();
 
         // Packet spec
         byte[] rxbuffer = new byte[5000];
@@ -426,11 +429,16 @@ public class userApplication {
         DatagramSocket resSocket = new DatagramSocket(48038);
 		DatagramSocket reqSocket = new DatagramSocket();
 
-		for (int i = 0; i < 10; i++){
+		for (int i = 0; i < 60; i++){
 			try {
 				resSocket.receive(resPacket);
-				String message = new String(rxbuffer, 0, resPacket.getLength());
-				log.write(message);
+                String message = new String(rxbuffer, 0, resPacket.getLength());
+                // Based on the packet format, write telemetry results to csv file
+                String[] p = message.split(" ");
+                for (int j = 3; j < 8; j++){
+                    String chunk = (p[j].split("="))[1];
+                    log.write(chunk + ",");
+                }
 				log.newLine();
 				System.out.println(new String(rxbuffer));
 			} catch (Exception x) {
