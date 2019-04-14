@@ -20,13 +20,13 @@ public class userApplication {
     
     static final String CLIENT_IP = "";
     static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48030;
-    static final int SERVER_PORT = 38030;
-    static final String ECHO_CODE = "E4449";
-    static final String IMAGE_CODE = "M5773";
-    static final String AUDIO_CODE = "A8633";
-    static final String COPTER_CODE = "Q7137";
-    static final String VEHICLE_CODE = "V6386";
+    static final int CLIENT_PORT = 48015;
+    static final int SERVER_PORT = 38015;
+    static final String ECHO_CODE = "E1296";
+    static final String IMAGE_CODE = "M3716";
+    static final String AUDIO_CODE = "A4812";
+    static final String COPTER_CODE = "Q4665";
+    static final String VEHICLE_CODE = "V9826";
     static final long DURATION = 60 * 4 * 1000;
 
 
