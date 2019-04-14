@@ -18,21 +18,43 @@ public class userApplication {
 
 	private static Scanner in;
     
-    static final String CLIENT_IP = "";
-    static final String SERVER_IP = "155.207.18.208";
-    static final int CLIENT_PORT = 48015;
-    static final int SERVER_PORT = 38015;
-    static final String ECHO_CODE = "E1296";
-    static final String IMAGE_CODE = "M3716";
-    static final String AUDIO_CODE = "A4812";
-    static final String COPTER_CODE = "Q4665";
-    static final String VEHICLE_CODE = "V9826";
-    static final long DURATION = 60 * 4 * 1000;
+    static String CLIENT_IP;
+    static String SERVER_IP;
+    static int CLIENT_PORT;
+    static int SERVER_PORT;
+    static String ECHO_CODE;
+    static String IMAGE_CODE;
+    static String AUDIO_CODE;
+    static String COPTER_CODE;
+    static String VEHICLE_CODE;
+    static long DURATION;
 
 
 	public static void main(String[] args) throws IOException {
-		userApplication.options();
-	}
+        userApplication.init();
+        userApplication.options();
+    }
+    
+    public static void init(){
+        try {
+            BufferedReader config = new BufferedReader(new FileReader("./config.txt"));
+            SERVER_IP = (config.readLine()).split("=")[1];
+            CLIENT_PORT = Integer.parseInt((config.readLine()).split("=")[1]);
+            SERVER_PORT = Integer.parseInt((config.readLine()).split("=")[1]);
+            ECHO_CODE = (config.readLine()).split("=")[1];
+            IMAGE_CODE = (config.readLine()).split("=")[1];
+            AUDIO_CODE = (config.readLine()).split("=")[1];
+            COPTER_CODE = (config.readLine()).split("=")[1];
+            VEHICLE_CODE = (config.readLine()).split("=")[1];
+            DURATION = Integer.parseInt(((config.readLine()).split("="))[1]);
+            config.close();
+            // System.out.printf("%s\n%d\n%d\n%s\n%s\n%s\n%s\n%s\n%d\n", SERVER_IP, CLIENT_PORT, SERVER_PORT,
+                // ECHO_CODE, IMAGE_CODE, AUDIO_CODE, COPTER_CODE, VEHICLE_CODE, DURATION);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+ 
+    }
 	
 	// Creation of menu for choosing the desirable option
 	public static void options(){
