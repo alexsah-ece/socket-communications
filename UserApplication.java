@@ -14,7 +14,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 
-public class userApplication {
+public class UserApplication {
 
 	private static Scanner in;
     
@@ -31,8 +31,8 @@ public class userApplication {
 
 
 	public static void main(String[] args) throws IOException {
-        userApplication.init();
-        userApplication.options();
+        UserApplication.init();
+        UserApplication.options();
     }
     
     public static void init(){

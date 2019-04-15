@@ -6,4 +6,4 @@ mkdir -p log log/AQDPCM log/DPCM log/echo log/copter log/vehicle
 mkdir img
 
 # move files into src
-mv plot-scripts *.java src
+mv plot-scripts *.java config.txt src
